@@ -1,0 +1,609 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{ragged2e}
+\usepackage{listingsutf8}
+\usepackage{multirow}
+\usepackage{breqn}
+\lstdefinelanguage{Sage}[]{Python}
+{morekeywords={False,degree,shift,degree,parent,matrix,ceil,random_element,PolynomialRing,GF,\%time,quo_rem,True, sample, power_mod, gcd, dimensions, basis_matrix, transpose, append, identity, right_kernel, characteristic, base_ring, derivative},sensitive=true}
+\usepackage[spanish,onelanguage]{algorithm2e}
+%\setlength{\parindent}{0em}
+\usepackage[left=3.5cm,right=3.5cm,top=2cm,bottom=2.5cm]{geometry}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\newtheorem{ejer}{Ejercicio}
+\theoremstyle{definition}
+\newtheorem*{sol}{Solución}
+\title{\textbf{\huge Álgebra y Algoritmos}}
+\author{Ángel Ríos San Nicolás}
+\date{14 de marzo de 2021}
+\renewcommand{\refname}{Bibliografía}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\QQx}{\mathbb{Q}[x]}
+\newcommand{\QQy}{\mathbb{Q}[y]}
+\newcommand{\QQa}{\mathbb{Q}(\alpha)}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\RRx}{\mathbb{R}[x]}
+\newcommand{\sig}{\operatorname{sig}}
+\newcommand{\res}[1]{\operatorname{Res}_{#1}}
+\newcommand{\stc}{\operatorname{sturmcount}}
+\begin{document}
+\maketitle
+\begin{ejer} Realice una implementación efectiva de un algoritmo de factorización en $\mathbb{F
+}_p$ con $p$ primo basada en el teorema de Berlekamp. Tenga especial cuidado con el coste de escribir la matriz de la función $\alpha^p-\alpha$.
+\end{ejer}
+\begin{sol} Implementamos el algoritmo de Berlekamp para encontrar un factor irreducible de un polinomio mónico y libre de cuadrados con coeficientes en un cuerpo finito $\mathbb{F}_q$ con $q=p^m$, $p,m\in\mathbb{N}$ y $p$ primo. En particular funciona para cuerpos finitos con $m=1$.
+\lstset{inputencoding=utf8, basicstyle =\small, literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {ã}{{\~a}}1 {ẽ}{{\~e}}1 {ĩ}{{\~i}}1 {õ}{{\~o}}1 {ũ}{{\~u}}1
+  {Ã}{{\~A}}1 {Ẽ}{{\~E}}1 {Ĩ}{{\~I}}1 {Õ}{{\~O}}1 {Ũ}{{\~U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\euro}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1 }
+\lstinputlisting[language=Sage]{factorBerlekamp.txt}
+
+Implementamos ahora un método que encuentra todos los factores de un polinomio libre de cuadrados sobre $\mathbb{F}_q$ y, en particular, también sobre $\mathbb{F}_p$. La idea es calcular $f=gh$ con el algoritmo anterior y comprobar con el mismo algoritmo si $g$ es irreducible o $h$ es irreducible. Se aplica el mismo proceso al factor reducible hasta que llegar a un producto de dos irreducibles.
+\lstinputlisting[language = Sage]{Berlekamp.txt}
+
+Para el caso general de $f\in\mathbb{F}_q$. Calculamos $h=\gcd(f,f')$ y consideramos tres casos.
+\begin{enumerate}
+    \item Si $h=1$, entonces $f$ es libre de cuadrados y aplicamos el método anterior.
+    \item Si $h=f$, entonces $f'=0$ y $f=g^{p^r}$ para $g\in\mathbb{F}_q[x]$ que podemos hallar calculando raíces en $\mathbb{F}_q[x]$. El problema se reduce a factorizar $g$.
+    \item En otro caso, $h$ es un factor irreducible y el problema se reduce a factorizar $f/h$ con el mismo procedimiento.
+\end{enumerate}
+
+
+\end{sol}
+\begin{ejer} Usando solamente el algoritmo de factorización de sage para polinomios racionales, calcule la factorización de $f(x)=x^6-2x^3+5\in\mathbb{Q}(\alpha)[x]$ donde $\alpha$ es raíz de $f$. A partir de esta factorización, justifique que el grupo de Galois del cuerpo de escisión de $f$ sobre $\mathbb{Q}$ no es el grupo de permutaciones $S_6$.
+\end{ejer}
+\begin{sol} Como $\gcd(f,f')=1$, el polinomio $f$ es libre de cuadrados. Vamos a factorizar $f$ en $\QQ(\alpha)$ con $\alpha$ una raíz de $f$. Consideramos el polinomio mínimo de $\alpha$ sobre $\QQy$ que es $g(y)=y^6-2y^3+5$. Calculamos la norma $N(f)$ con la resultante
+\begin{multline*}
+N(f)=\res{y}(f,g)=\res{y}\left(x^6-2x^3+5,y^6-2y^3+5\right)=x^{36} - 12 x^{33} + 90 x^{30} - 460 x^{27} +\\ +1815 x^{24}- 5592 x^{21} + 13964 x^{18} - 27960 x^{15} + 45375 x^{12} - 57500 x^{9} + 56250 x^{6} - 37500 x^{3} + 15625.
+\end{multline*}
+No es libre de cuadrados porque
+\begin{multline*}
+\gcd(N(f),N(f)')=x^{30} - 10 x^{27} + 65 x^{24} - 280 x^{21} + 930 x^{18}- 2332 x^{15}+\\ + 4650 x^{12} - 7000 x^{9} + 8125 x^{6} - 6250 x^{3} + 3125\neq 1.
+\end{multline*}
+Probamos con $N(f(x-2\alpha))$ que calculamos de nuevo con la resultante
+\begin{multline*}
+N(f(x-2\alpha))=\res{y}(f(x-2\alpha),y^6-2y^3+5)=x^{36} - 108 x^{33} + 6042 x^{30} - 137484 x^{27}-\\ - 1095945 x^{24}- 38781720 x^{21} + 9696177676 x^{18} - 44969134392 x^{15} - 1474118148609 x^{12}+\\ + 7323966993924 x^{9} + 161779763521530 x^{6} - 950902005872700 x^{3} + 1411901425931625.
+\end{multline*}
+En este caso sí es libre de cuadrados porque $\gcd(N(f(x-2\alpha)),N(f(x-2\alpha))')=1$. Factorizamos la norma $N(f(x-2\alpha)$ en irreducibles de $\QQx$ y obtenemos $N(f(x-2\alpha))=g_1g_2g_3$ donde
+\[\begin{split}
+g_1 & =  x^{6} - 54 x^{3} + 3645\\
+g_2 & = x^{12} - 162 x^{6} + 18225\\
+g_3 & = x^{18} - 54 x^{15} - 357 x^{12} + 22572 x^{9} + 2411031 x^{6} - 13999446 x^{3} + 21253933
+\end{split}\]
+Los factores irreducibles de $f(x-2\alpha)$ en $\QQa[x]$ son
+\[\begin{split}
+h_1 & = \gcd(h_1,f(x-2\alpha))=x-3\alpha\\
+h_2 & = \gcd(h_2,f(x-2\alpha))=x^{2} - 3 \alpha x + 3 \alpha^{2}\\
+h_3 & = \gcd(h_3,f(x-2\alpha))=x^{3} - 6 \alpha x^{2} + 12 \alpha^{2} x - 7 \alpha^{3} - 2\\
+\end{split}
+\]
+Obtenemos los factores irreducibles de $f$ en $\QQa[x]$ deshaciendo el cambio
+\[\begin{split}
+h_1(x+2\alpha) & =x-\alpha\\
+h_2(x+2\alpha) & =x^2 + \alpha x + \alpha^2\\
+h_3(x+2\alpha) & =x^3 + \alpha^3 - 2\\
+\end{split}
+\]
+con lo que la factorización de $f$ en irreducibles de $\QQa[x]$ es
+\[f=\left(x-\alpha\right)\left(x^2 + \alpha x + \alpha^2\right)\left(x^3 + \alpha^3 - 2\right).\]
+
+Observamos que $f$ factoriza en $Q(\alpha)[x]$ en el producto de un polinomio lineal y dos irreducibles de grados $2$ y $3$ respectivamente. Consideramos $\QQ(\alpha,\beta)=\QQ(\alpha)[x]/(x^2+\alpha x+\alpha^2)$ que es una extensión de grado $[\QQ(\alpha,\beta) : \QQ]=6\cdot 2=12$ donde $x^2+\alpha x+\alpha^2$ se escinde. Distinguimos tres casos para el factor $(x^3+\alpha^3-2)$. 
+\begin{itemize}
+    \item Si se escinde en $\QQ(\alpha,\beta)[x]$, entonces $f$ se escinde y $\QQ(\alpha,\beta)$ es el cuerpo de escisión de $f$.
+    \item  Si factoriza en $\QQ(\alpha,\beta)[x]$ en el producto de un polinomio de grado $1$ y un polinomio $p$ de grado $2$ irreducible, consideramos la extensión $\QQ(\alpha,\beta,\gamma)=\QQ(\alpha,\beta)[x]/(p)$ que es una extensión de grado $[\QQ(\alpha,\beta,\gamma) : \QQ]=6\cdot 2\cdot 2 = 24$ donde $f$ se escinde y, por lo tanto, es el cuerpo de escisión.
+    \item Si es irreducible en $\QQ(\alpha,\beta)[x]$, consideramos  $\QQ(\alpha,\beta,\gamma)=\QQ(\alpha,\beta)[x]/(x^3+\alpha^3-2)$ que es una extensión de grado $[\QQ(\alpha,\beta,\gamma):\QQ]=6\cdot 2\cdot 3=36$ donde tenemos que \[x^3+\alpha^2-2=(x-\gamma)q\] con $q$ de grado $2$. Distinguimos dos casos para $q$.
+    \begin{itemize}
+    \item Si $q$ se escinde en $\QQ(\alpha,\beta,\gamma)[x]$, entonces $f$ se escinde y $\QQ(\alpha,\beta,\gamma)$ es el cuerpo de escisión de $f$.
+    \item Si $q$ es irreducible en $\QQ(\alpha,\beta,\gamma)[x]$, entonces consideramos \[\QQ(\alpha,\beta,\gamma,\delta)=\QQ(\alpha,\beta,\gamma)[x]/(q)\] que es una extensión de grado $[\QQ(\alpha,\beta,\gamma,\delta):\QQ]=6\cdot 2\cdot 3\cdot 2 = 72$ donde $q$ se escinde y $f$ también con lo que $\QQ(\alpha,\beta,\gamma,\delta)$ es el cuerpo de escisión de $f$.
+    \end{itemize}
+    
+    Por el teorema fundamental de la teoría de Galois, existe una biyección entre el conjunto de subgrupos del grupo de Galois de $K/\QQ$ y el conjunto de cuerpos intermedios tal que si $S\subseteq\text{Gal}(K/\QQ)$ es un subgrupo, su orden es $|S|=[K : K^S]$ donde $K^S$ es el subcuerpo de $K$ de los elementos fijados por todo $S$. En particular, el orden del grupo de Galois es $|\text{Gal}(K/\QQ)|=[K : \QQ]$. Por la discusión de casos anterior, sabemos que el grado de la extensión es $[K:\QQ]\in\{12,24,36,72\}$. Por lo tanto, como el orden del grupo de Galois no es $6!$, no es el grupo de permutaciones $S_6$.
+\end{itemize}
+
+\end{sol}
+\begin{ejer} Describa brevemente un algoritmo que tome como entrada una polinomio $f\in\QQx$ y devuelva como output un polinomio $g$ tal que el cuerpo de escisión de $f$ sea $\mathbb{Q}[x]/(g)$. ¿Es capaz de calcular dicho polinomio para $f(x)=x^6-2x^3+5$?
+\end{ejer}
+\begin{sol} Sea $f\in\mathbb{Q}[x]$. Podemos factorizar $f$ en irreducibles y obtenemos 
+\[f = f_1^{m_1}\cdots f_n^{m_s}.\]
+Consideramos la extensión $\QQ(\alpha_1) = \QQ[x]/(f_1)$. Factorizamos $f$ en $\QQ(\alpha_1)[x]$ donde al menos $f_1$ se escinde y tenemos
+\[f = g_1^{r_1}\cdots g_{s'}^{r_{s'}}.\] Si $f$ se escinde, es decir, si $r_1=\cdots = r_{s'} = 1$, entonces $g=f_1$ y hemos terminado. Si no, tomamos un factor irreducible $g_1$ y construimos $\QQ(\alpha_1,\alpha_2) = \QQ(\alpha_1)[x]/(g_1)$. Podemos factorizar el polinomio $f$ en $\QQ(\alpha_1,\alpha_2)[x]$. Como el número de factores irreducibles es finito, repetimos el proceso hasta obtener $\QQ(\alpha_1,\ldots, \alpha_n)$, el cuerpo de escisión de $f$ sobre $\QQ$ que es una extensión separable y finita. Por el teorema del elemento primitvo es simple y existe un $\gamma\in\QQ(\alpha_1,\ldots,\alpha_s)$ que la genera como $\QQ$-espacio vectorial de dimensión finita.
+
+En el proceso anterior de construcción del cuerpo de escisión obtenemos en cada paso el polinomio mínimo $f_i\in\QQ[x_1,\ldots, x_i]$ de $\alpha_i$ sobre $\QQ(\alpha_1,\ldots,\alpha_{i-1})$ que denotamos $f_i$. Como el cuerpo de escisión $\QQ(\alpha_1,\ldots,\alpha_n)$ es numerable, podemos enumerar sus elementos como combinaciones lineales de la forma $f(\alpha_1,\ldots,\alpha_n)$ con $f\in\QQ[x_1,\ldots, x_n]$ hasta que encontramos un polinomio $g$ con $\gamma=g(\alpha_1,\ldots,\alpha_n)$ primitivo. Consideramos el siguiente ideal de $\QQ\left[x_1,\ldots,x_n,y\right]$.
+\[\mathfrak{a} = \left(f_1,\ldots, f_n, y-f(x_1,\ldots, x_n)\right)\]
+El polinomio mínimo de $\gamma$ sobre $\QQ$ se puede calcular como el único generador mónico en la base de Gröbner reducida del ideal de eliminación $\mathfrak{a}\cap\QQ[x_1,\ldots,x_n]$. Si tomamos un elemento del cuerpo de escisión de manera aleatoria será primitivo, pero su polinomio mínimo tendrá coeficientes enormes. En la práctica probamos con combinaciones sencillas hasta que obtenemos $\gamma$ primitivo y su polinomio mínimo $g$ con los que concluimos que $\QQ(\alpha_1,\ldots,\alpha_n)=\QQ(\gamma)=\QQ[x]/(g)$ como queríamos.
+
+Vamos a aplicar el algoritmo descrito a $f=x^6-2x^3+5$. Del apartado anterior, tenemos la factorización de $f$ en su cuerpo raíz $\QQ(\alpha)$.
+\[f = (x-\alpha)(x^2+\alpha x+\alpha^2)(x^3+\alpha^3-2)\]
+Consideramos $\QQ(\alpha,\beta) = \QQ(\alpha)/(x^2+\alpha x+\alpha^2)$  y podemos factorizar $f$ en $\QQ(\alpha,\beta)[x]$ donde vemos que $x^3+\alpha^3-2$ es irreducible. Tomamos $\QQ(\alpha,\beta,\gamma)=\QQ(\alpha,\beta)[x]/(x^3+\alpha^3-2)$, factorizamos el polinomio $x^3+\alpha^3-2$ en $\QQ(\alpha,\beta,\gamma)[x]$ y se escinde
+\[x^3+\alpha^2-2 = \left(x - \gamma\right)\left(x + \left(\left(\frac{-1}{5}\alpha^5 + \frac{2}{5}\alpha^2\right)\beta + 1\right)\gamma\right)\left(x + \left(\left(\frac{1}{5}\alpha^5 - \frac{2}{5}\alpha^2\right)\beta\right)\gamma\right).\]
+Por lo tanto, $\QQ(\alpha,\beta,\gamma)$ es el cuerpo de escisión de $f$ que es una extensión de grado $36$. Los polinomios mínimos de $\alpha$, $\beta$ y $\gamma$ respectivamente sobre $\QQ$, $\QQ(\alpha)$ y $\QQ(\alpha,\beta)$ son
+\begin{align*}x^6-2x^3+5 &\in\QQ[x]\\
+y^2+\alpha y+\alpha^2 & \in\QQ(\alpha)[y]\\
+z^3+\alpha^3-2 & \in\QQ(\alpha,\beta)[z]\end{align*}
+
+Ahora probamos con diferentes elementos de $\QQ(\alpha,\beta,\gamma)$ hasta encontrar un elemento primitivo. Probamos, por ejemplo, con $\alpha+\beta+\gamma$. Consideramos el siguiente ideal en $\QQ[x,y,z,t]$.
+\[\mathfrak{a} = \left(x^6-2x^3+5, y^2+\alpha y+\alpha^2, z^3+\alpha^3-2, t-(x+y+z)\right)\]
+Calculando la base de Gröbner reducida del ideal de eliminación $\mathfrak{a}\cap\QQ[x,y,z]$, tenemos que el único generador, que es el polinomio mínimo de $\alpha+\beta+\gamma$ sobre $\QQ$, es
+\[t^{18} + 318t^{12} + 6033t^6 + 4096\]
+con lo que $\alpha+\beta+\gamma$ no es primitivo.
+
+Probamos con $\alpha-\beta+\gamma$. Definimos el ideal 
+\[\mathfrak{b} = \left(x^6-2x^3+5, y^2+\alpha y+\alpha^2, z^3+\alpha^3-2, t-(x-y+z)\right).\]
+Calculando la base de Gröbner reducida del ideal de eliminación $\mathfrak{b}\cap\QQ[x,y,z]$, hallamos el polinomio mínimo de $\alpha-\beta+\gamma$ que es
+\begin{multline*}
+g=t^{36} - 12 t^{33} - 396 t^{30} + 50732 t^{27} + 1418262 t^{24} + 10093164 t^{21} + 1852742516 t^{18} + 5520435348 t^{15}+\\ + 196631283201 t^{12} + 1504151875936 t^{9} + 7378647677568 t^{6} + 11198537803776 t^{3} + 5708466638848.  
+\end{multline*}
+Por lo tanto, $\alpha-\beta+\gamma$ es primitivo y $\QQ(\alpha,\beta,\gamma)=\QQ(\alpha-\beta+\gamma)=\QQ[x]/(g(x))$.
+
+% Como hay infinitas combinaciones $\{\alpha_n+\beta\alpha_n : \beta\in\QQ\}$ pero solo un número finito de cuerpos intermedios de $\QQ(\alpha_{n-1},\alpha_n)/\QQ$,  existen dos combinaciones distintas $\alpha_{n-1}+a\alpha_n$ y $\alpha_{n-1}+b\alpha_n$ que generan el mismo cuerpo intermedio $L$, que contiene
+% \begin{align*}\frac{(\alpha_n+a\alpha_{n-1})-(\alpha_n+b\alpha_{n-1})}{a-b} & = \alpha_n\\
+% \frac{(\alpha_n+a\alpha_{n-1})/a-(\alpha_n+b\alpha_{n-1})/b}{1/a-1/b} & = \alpha_{n-1}\end{align*}
+% Tomando $\alpha = \alpha_n+a\alpha_{n-1}$ tenemos que $\QQ(\alpha_1,\ldots,\alpha_n)=\QQ(\alpha_1,\ldots,\alpha_{n-2},\alpha)$. De manera análoga repitiendo el proceso llegamos al elemento primitivo $\gamma$ de la extensión. Como el conjunto de las combinaciones es numerable y el de cuerpos intermedios finito, podemos ir tomando parejas de combinaciones hasta que se cumpla la condición.
+
+
+
+\end{sol}
+
+
+\begin{ejer} Sea $L=[R_0,\ldots,R_k]$ una lista de polinomios en $\RRx$. Sea $S\in\RRx$ un polinomio y $c\in\RR$ con $S(c)\neq 0$. Sea $L'=[SR_0,\ldots, SR_k]$. Denotemos por $v_T(c)$ el número de cambios de signo de la lista $T$ en $c$. Demuestre que:
+$$v_L(c)=v_{L'}(c)$$
+\end{ejer}
+\begin{sol} Es claro que los ceros se conservan. Si $i\in\{0,1,\ldots, k\}$ tal que $R_i(c)=0$, entonces $S(c)R_i(c)=0$. Podemos suponer sin pérdida de generalidad que las listas evaluadas en $c$ no tienen ceros. Ahora, como $S(c)\neq 0$, es $S(c)<0$ o $S(c)>0$ y para todo $i\in\{0,1\ldots,k\}$,
+\[\begin{array}{ll}
+    \sig(S(c)R_i(c))=-\sig(R_i(c)) & \text{si } S(c)<0 \\
+    \sig(S(c)R_i(c))=\sig(R_i(c)) & \text{si } S(c)>0
+\end{array}\]
+
+Para cada $i\in\{0,1,\ldots, k\}$ tal que se conserva el signo $\sig(R_{i}(c))=\sig(R_{i+1}(c))$, se cumplen:
+\begin{itemize}
+    \item Si $S(c)<0$, \[\sig(S(c)R_i(c))=-\sig(R_i(c))=-\sig(R_{i+1}(c))=\sig(S(c)R_{i+1}(c))\]
+    \item Si $S(c)>0$, \[\sig(S(c)R_i(c))=\sig(R_i(c))=\sig(R_{i+1}(c))=\sig(S(c)R_{i+1}(c))\]
+\end{itemize}
+y cambia el signo también en $L'$.
+
+Para cada $i\in\{0,1,\ldots, k\}$ tal que tenemos un cambio de signo $\sig(R_i(c))=-\sig(R_{i+1}(c))$, se cumplen:
+\begin{itemize}
+    \item Si $S(c)<0$, \[\sig(S(c)R_i(c))=-\sig(R_i(c))=\sig(R_{i+1}(c))=-\sig(S(c)R_{i+1}(c)).\]
+    \item Si $S(c)>0$, \[\sig(S(c)R_i(c))=\sig(R_i(c))=-\sig(R_{i+1}(c))=-\sig(S(c)R_{i+1}(c)).\]
+\end{itemize}
+y se conserva el signo también en $L'$.
+
+Por lo tanto, $v_L(c)=v_{L'}(c)$.
+\end{sol}
+
+\begin{ejer} Sea $P,Q\in\RRx$. Sean $a<b$ con $P(a)\neq 0\neq P(b)$
+\[\begin{array}{c}
+n_+ = |\{c\in (a,b)| P(c)=0, Q(c)>0\}|\\
+n_{-}=|\{c\in (a,b)| P(c)=0, Q(c)<0\}|
+\end{array}\]
+Tomemos la sucesión:
+$$L = [R_0,R_1,\ldots, R_k]$$
+donde
+\[R_0=P, R_1=P'Q,R_{i+1}=-(R_{i-1}\% R_i), R_k=\gcd(P,P'Q)\]
+Denotemos por $v_L(c)$ el número de cambios de signo de la sucesión anterior en $c$. Demuestre que:
+$$v_L(a)-v_L(b)=n_{+}-n_{-}$$
+Pista: En el Teorema 2.3 se demuestra la igualdad para la lista $L'=[R_0/R_k,\ldots, R_k/R_k]$. Use el ejercicio anterior.
+\end{ejer}
+\begin{sol} Probamos primero que $R_k(a)\neq 0\neq R_k(b)$. Sabemos que $R_k = \gcd(P,P'Q)$, en particular divide a $P$, existe $H\in\RRx$ tal que $P=R_kH$. Como $P(a)\neq 0$, se cumple \[P(a)=R_k(a)H(a)\neq 0.\]
+Por ser $\RRx$ un dominio de integridad, $R_k(a)\neq 0$ y análogamente deducimos que $R_k(b)\neq 0$.
+
+Por el Teorema 2.3, si $L=[R_0/R_k,R_1/R_k,\ldots, R_k/R_k]$, entonces
+\[v_{L'}(a)-v_{L'}(b)=n_+-n_-.\]
+Aplicando el resultado del problema anterior, como $R_k(a)\neq 0\neq R_k(b)$,
+\[\left.\begin{array}{c}
+    v_{L'}(a) = v_{L}(b)\\
+    v_{L'}(b) = v_{L}(b) 
+\end{array}\right\}\Longrightarrow v_L(a)-v_L(b)=v_{L'}(a)-v_{L'}(b)=n_+-n_-.
+\]
+\end{sol}
+
+\begin{ejer} Sea $P,Q$ polinomios y $c\in\RR$ una constante no nula. Demuestre que:
+\begin{itemize}
+    \item $(cQ)\% P=c(Q\% P)$
+    \item $Q\%(cP) = Q\% P$
+    \item Si $\deg(P) = \deg(Q)$, existe una constante no nula $d$ con $(Q\%P)=d(P\% Q)$.
+\end{itemize}
+\end{ejer}
+\begin{sol}\leavevmode
+\begin{itemize}
+    \item $(cQ)\% P=c(Q\% P)$
+    
+    Aplicamos la división con resto en $\RRx$ por la que existen unos únicos cocientes $F,F'\in\RRx$ y restos $(cQ)\% P, Q\% P\in\RRx$ tales que 
+    \[\begin{array}{l}
+        cQ = PF+(cQ)\%P \\
+        Q = PF'+Q\% P
+    \end{array}
+    \]
+    con $\deg((cQ)\%P),\deg(Q\%P)<\deg(P)$. Como $c$ es no nulo por hipótesis, también se cumple \[Q=P\left(\frac{1}{c}F\right)+\frac{1}{c}\left((cQ)\% P\right).\]
+    Por unicidad, debe ser $F'=\left(\frac{1}{c}F\right)$ y, como queríamos, $(cQ)\% P=c(Q\% P)$ porque multiplicar por una constante no nula no cambia el grado.
+    
+    \item $Q\%(cP) = Q\% P$
+    
+    Aplicamos la división con resto en $\RRx$ por la que existen unos únicos cocientes $F,F'\in\RRx$ y restos $Q\%(cP),Q\% P\in\RRx$ tales que
+    \[\begin{array}{l}
+        Q = (cP)F+(Q\%(cP))\\
+        Q = PF'+(Q\%P)
+    \end{array}\]
+    con $\deg(Q\%(cP)),\deg(Q\% P)<\deg(cP)=\deg(P)$. Como \[(cP)F+(Q\%(cP))=P(cF)+(Q\%(cP)),\] recuperamos la división por $P$. Por unicidad, $F'=cF$ y, como queríamos, \[Q\% (cP) = Q\% P.\]
+    \item Si $\deg(P) = \deg(Q)$, existe una constante no nula $d$ con $(Q\%P)=d(P\% Q)$.
+    
+    Denotamos $n = \deg(P)$. Si $P = a_nx^n+\cdots+a_1x+a_0$ y $Q = b_nx^n+\cdots+b_1x+b_0$. Las divisiones con resto de $P$ y $Q$ entre sí son
+    \[\begin{array}{l}
+        P = \frac{a}{b}Q+(P\% Q)\\
+        Q = \frac{b}{a}P+(Q\% P)
+    \end{array}
+    \]
+    que se obtienen en un paso del algoritmo de la escuela. Despejando tenemos
+    \[\begin{array}{l}
+        P\% Q = P-\frac{a}{b}Q\\
+        Q\% P = Q-\frac{b}{a}P=\frac{b}{a}\left(\frac{a}{b}Q-P\right)=-\frac{b}{a}\left(P-\frac{a}{b}Q\right)=-\frac{b}{a}(P\% Q)
+    \end{array}
+    \]
+    con lo que existe un único $d=-\frac{b}{a}\in\RR$ no nulo que lo cumple. Es no nulo porque por hipótesis $\deg(P)=n$.
+\end{itemize}
+\end{sol}
+
+\begin{ejer} Sea $P,Q\in\RRx$. Tomemos las sucesiones:
+\[L: R_0=P,R_1=Q,R_{i+1}=-(R_{i-1}\% R_i),R_k=\gcd(P,Q)\]
+y
+\[L':S_0=-P,S_1=-Q,S_{i+1}=-(S_{i-1}\% S_i),S_{k'}=\gcd(-P,-Q)\]
+Demuestre que:
+\begin{itemize}
+    \item $k=k'$ y $S_i=-R_i,0\leq i\leq k$.
+    \item Si $c\in\RR,v_L(c)=v_{L'}(c)$.
+\end{itemize}
+\end{ejer}
+\begin{sol}\leavevmode
+\begin{itemize}
+    \item $k=k'$ y $S_i=-R_i,0\leq i\leq k$.
+    
+    Por definción, $S_0=P=-(-P)=-R_0$. Suponemos que $S_j=-R_j$ para $0\leq j\leq i\leq k$. Aplicando los resultados del ejercicio anterior, 
+    \[S_{i+1}=-(S_{i-1}\%S_i)=(-S_{i-1}\%(-S_i))=(R_{i-1}\%R_i)=-R_{i+1}.\]
+    En particular, $S_{k+1}=-(S_{k-1}\% S_k)=R_{k+1}=0$ con lo que el anterior es el máximo común divisor $S_k=\gcd(-P,-Q)$ y esto prueba que $k=k'$.
+    \item Si $c\in\RR,v_L(c)=v_{L'}(c)$.
+    
+    Como $-1\in\RRx$ tal que $(-1)(c)=-1\neq 0$, aplicando el resultado del Ejercicio 4, \[v_L(c)=v_{L'}(c).\]
+\end{itemize}
+\end{sol}
+
+Los siguientes dos ejercicios no es la forma usual de resolver estos apartados. Se introducen para practicar con los conceptos vistos.
+
+\begin{ejer} Sea $P,Q$ como en el Teorma 2.3. Supongamos que $\deg(P'Q)>\deg(P)$. Sea $T=(P'Q)\%P$ el resto sin cambiar de signo. Definimos la lista de polinomios:
+\[L: R_0=P,R_1=P'Q,R_{i+1}=-(R_{i-1}\%R_i), R_k=\gcd(P,P'Q)\]
+\[L': S_0=P,S_1=T,S_{i+1}=-(S_{i-1}\%S_i),S_{k'}=\gcd(P,T)=\gcd(P,P'Q)\]
+Demuestre que:
+\begin{itemize}
+    \item $R_2=-P$, $R_3=-T$, $R_{i+2}=-S_i$
+    \item Si $P(c)\neq 0$, $v_L(c)=v_{L'}(c)+1$. En particular,
+    \[v_L(a)-v_L(b)=v_{L'}(a)-v_{L'}(b)=n_+-n_-\]
+\end{itemize}
+\end{ejer}
+\begin{sol}\leavevmode
+\begin{itemize}
+    \item $R_2=-P$, $R_3=-T$, $R_{i+2}=-S_i$
+    
+    Por definición, $R_2=-(R_0\% R_1)=-(P\% (P'Q))$. Pero $P=P'Q\cdot 0+P$ donde $\deg(P)<\deg(P'Q)$ por hipótesis, con lo que el resto es $(P\%(P'Q))=P$ y entonces $R_2=-P$.
+    
+    Por definición, $R_3 = -(R_1\% R_2)=-((P'Q)\% (-P))=-((P'Q)\%P)=-T$.
+    
+    Suponemos que se cumple $R_{j+2}=-S_j$ para $0\leq j\leq i\leq k$. Desarrollando, tenemos \[R_{(i+1)+2}=R_{i+3}=-(R_{i+1}\% R_{i+2})=-(-S_{i-1}\%(-S_i))=(S_{i-1}\% S_i)=-S_{i+1}\]
+    
+    \item Si $P(c)\neq 0$, $v_L(c)=v_{L'}(c)+1$. En particular,
+    \[v_L(a)-v_L(b)=v_{L'}(a)-v_{L'}(b)=n_+-n_-.\]
+    
+    La lista $L$ se puede escribir de la siguiente manera. \[L=[R_0,R_1,R_2,R_3,\ldots, R_k ]=[P,P'Q,-S_0,-S_1,\ldots,-S_{k-2}]\]
+    donde, por el Ejercicio 4, $[-S_0,-S_1,\ldots,-S_{k-2}]$ tiene el mismo número de cambios de signos que $L'$ porque el polinomio $-1\in\RRx$ no se anula en $c$. Además, $-S_0=-P$ con lo que independientemente del signo de $PQ$ en $c$, la lista $L$ siempre tiene un cambio de signo más que $L'$, es decir, $v_L(c)=v_{L'}(c)+1$.
+    
+    Para las igualdades que quedan suponemos, como en el Teorema 2.3, que $a,b\in\RR$ con $a<b$ no son raíces de $P$. Sabemos que $v_L(a)=v_{L'}(a)+1$ y $v_L(b)=v_{L'}(b)+1$. Restando y aplicando el Ejercicio 5 a $L'$, \[v_L(a)-v_L(b)=v_{L'}(a)-v_{L'}(b)=n_+-n_-.\]
+\end{itemize}
+\end{sol}
+\begin{ejer} Sean $P,Q$ como en el Teorema 2.3. Supongamos que $\deg(P'Q)=\deg(P)$. Sea $T=(P'Q)\%P$ el resto sin cambiar de signo. Definimos la lista de polinomios:
+\[R:R_0=P,R_1=P'Q,R_{i+1}=-(R_{i-1}\% R_i),R_k=\gcd(P,P'Q)\]
+\[S:S_0=P,S_1=T,S_{i+1}=-(S_{i-1}\%S_i),S_{k'}=\gcd(P,T)=\gcd(P,P'Q)\]
+sea $P=ax^n+\cdots, Q=bx+\cdots$, $P'Q=anbx^n+\cdots$ y sea $d=nb$. Denotemos por
+\[R'=[R_2,\ldots, R_k]\]
+\[S'=[S_1,\ldots,S_{k'}]\]
+Demuestre que:
+\begin{itemize}
+    \item $S_1=dR_2$
+    \item $S_2=d^{-1}R_3$
+    \item $S_{2i+1}=dR_{2i+2},i\leq 0$
+    \item $S_{2i}=d^{-1}R_{2i+1},i\leq 1$
+    \item $v_{R'}(c)=v_{S'}(c)$
+\end{itemize}
+Rellene la siguiente tabla con los signos que faltan.
+\[\begin{array}{c|c|c|c|c|c|c}
+    d & P & P'Q-dP & P'Q & d^{-1}(P'Q-dP) & v([R_0,R_1,R_2]) & v([S_0,S_1])\\
+    + & + & + & & & & \\
+    + & + & - & & & & \\
+    + & + & 0 & & & & \\
+    + & - & + & & & & \\
+    + & - & - & & & & \\
+    + & - & 0 & & & & \\
+    - & + & + & & & & \\
+    - & + & - & & & & \\
+    - & + & 0 & & & & \\
+    - & - & + & & & & \\
+    - & - & - & & & & \\
+    - & - & 0 & & & & \\
+\end{array}\]
+Concluya que:
+\begin{itemize}
+    \item Si $d>0$, entonces para todo $c$ con $P(c)\neq 0$, $v_R(c)=v_S(c)$
+    \item Si $d<0$, entonces para todo $c$ con $P(c)\neq 0$, $v_R(c)=v_S(c)+1$
+    \item En cualquier caso si $a<b$ y $P(a)P(b)\neq 0$,
+    \[v_S(a)-v_S(b)=v_R(a)-v_R(b)=n_{+}-n_{-}.\]
+\end{itemize}
+\end{ejer}
+\begin{sol} Como $P=ax^n+\cdots$ y $P'Q=anbx^n+\cdots$, la división con resto es \[P'Q = dP + ((P'Q)\% P).\]
+Por lo tanto, aplicando lo visto en el Ejercicio 6, $((P'Q)\% P)=-d(P\% (P'Q))$.
+\begin{itemize}
+    \item $S_1=dR_2$
+    
+    Por definición, $dR_2=-d(R_0\%R_1)=-d(P\% (P'Q))=((P'Q)\% P)=T=S_1.$
+    \item $S_2=d^{-1}R_3$
+    \[d^{-1}R_3=d^{-1}(R_1\%R_2)=d^{-1}((P'Q)\%(d^{-1}S_1))=d^{-1}((P'Q)\% S_1)\]
+    \[=d^{-1}((P'Q)\% ((P'Q)\%P))=d^{-1}((P'Q)\% P)=-(P\%(P'Q))=\]\[=-(P\%((P'Q)\% P))=-(S_0\%S_1)=S_2.\]
+    %\begin{dmath*}d^{-1}R_3=d^{-1}(R_1\%R_2)=d^{-1}((P'Q)\%(d^{-1}S_1))=d^{-1}((P'Q)\% S_1)=d^{-1}((P'Q)\% ((P'Q)\%P))=d^{-1}((P'Q)\% P)=-(P\%(P'Q))=-(P\%((P'Q)\% P))=-(S_0\%S_1)=S_2.\end{dmath*}
+    \item $S_{2i+1}=dR_{2i+2},i\leq 0$
+    
+    Suponemos que se cumple $S_{2j+1}=dR_{2j+2}$ para $0\leq j\leq i$.
+    \[S_{2i+2}=-(S_{2i}\%S_{2i+1})=-(d^{-1}R_{2i+1}\%S_{2i+1})=-(d^{-1}R_{2i+1}\%dR_{2i+2})=\]\[=-d^{-1}(R_{2i+1}\% R_{2i+2})=-d^{-1}R_{2i+3}.\]
+    \item $S_{2i}=d^{-1}R_{2i+1},i\leq 1$
+    
+    Suponemos que se cumple $S_{2j}=d^{-1}R_{2j+1}$ para $0\leq j\leq i$. \[S_{2i+3}=-(S_{2i+1}\%S_{2i+2})=-(dS_{2i+2}\%d^{-1}S_{2i+3})=-d(R_{2i+2}\%R_{2i+3})=-dR_{2i+4}.\]
+    \item $v_{R'}(c)=v_{S'}(c)$
+    
+    La lista $R'$ se puede escribir de la siguiente manera. \[R'=[R_2,R_3,\ldots,R_k]=[d^{-1}S_1,dS_2,\ldots,d^{(-1)^{k'}}S_{k'}].\]
+    Tiene el mismo número de cambios de signo en $c$ que $S'=[S_1,S_2,\ldots, S_k']$ porque $d$ y $d^{-1}$ son constantes no nulas con el mismo signo y no varían el número de cambios de signo. Por lo tanto, $v_{R'}(c)=v_{L'}(c)$.
+\end{itemize}
+Rellenamos la tabla con los signos que faltan. Los signos de la cuarta columa no son más que el producto de los de la primera y la tercera. Para completar la cuarta columna usamos la igualdad $P'Q = dP+(P'Q-dP)$. Hay ciertos signos que no podemos deducir, pero podemos rellenar las columnas $v([R_0,R_1,R_2])=v([P,P'Q,d^{-1}(P'Q-dP)])$ y $v([S_0,S_1])=v([P,P'Q-dP])$ porque en esos casos sabemos que hay un cambio de signo determinado por $P$ y $d^{-1}(P'Q-dP)$ con lo que independientemente del signo del $P'Q$, hay un único cambio de signo.
+\[\begin{array}{c|c|c|c|c|c|c}
+    d & P & P'Q-dP & P'Q & d^{-1}(P'Q-dP) & v([R_0,R_1,R_2]) & v([S_0,S_1])\\
+    + & + & + & + & + & 0 & 0\\
+    + & + & - & ? & - & 1 & 1\\
+    + & + & 0 & + & 0 & 0 & 0\\
+    + & - & + & ? & + & 1 & 1\\
+    + & - & - & - & - & 0 & 0\\
+    + & - & 0 & - & 0 & 0 & 0\\
+    - & + & + & ? & - & 1 & 0\\
+    - & + & - & - & + & 2 & 1\\
+    - & + & 0 & - & 0 & 1 & 0\\
+    - & - & + & + & - & 2 & 1\\
+    - & - & - & ? & + & 1 & 0\\
+    - & - & 0 & + & 0 & 1 & 0\\
+\end{array}\]
+\begin{itemize}
+    \item Si $d>0$, entonces para todo $c$ con $P(c)\neq 0$, $v_R(c)=v_S(c)$.
+    
+    Sabemos que $v_{R'}(c)=v_{L'}(c)$ con lo que nos fijamos en si hay cambios de signo en $[R_0,R_1,R_2]$ y $[S_0,S_1]$ que son los primeros términos de $R'$ y $S'$. Mirando en la tabla, tenemos que si $d>0$, entonces $v([R_0,R_1,R_2])=v([S_0,S_1])$ y $v_R(c)=v_L(c)$. 
+    
+    
+    \item Si $d<0$, entonces para todo $c$ con $P(c)\neq 0$, $v_R(c)=v_S(c)+1$
+    
+    Como antes, $v_{R'}(c)=v_{L'}(c)$ y solo nos tenemos que fijar en $[R_0,R_1,R_2]$ y $[S_0,S_1]$. De la tabla tenemos que si $d<0$, entonces $v([R_0,R_1,R_2])=v([S_0,S_1])+1$ y $v_R(c)=v_L(c)+1$. 
+    
+    \item En cualquier caso si $a<b$ y $P(a)P(b)\neq 0$,
+    \[v_S(a)-v_S(b)=v_R(a)-v_R(b)=n_{+}-n_{-}.\]
+    
+    Independientemente de si $d$ es positivo o negativo, restando y aplicando lo anterior y el Ejercicio 4 a $R$,
+    \[v_S(a)-v_S(b)=v_R(a)-v_R(b)=n_+-n_-.\]
+\end{itemize}
+
+\end{sol}
+Codificación \textit{à la Thom} de un número real. 
+
+\begin{ejer} Sea $F\in\RRx$ un polinomio real en una variable no nulo de grado $n\geq 0$. Consideremos la lista de derivadas:
+\[DF=[F,F',\ldots,F^{(n)}]\]
+Para cada distribución de signos $\sigma\in\{-1,0,1\}^{n+1}$ sea:
+\[R(\sigma)=\{c\in\RR|\sig(F^{(i)}(c))=\sigma_{i},0\leq i\leq n\}\]
+Demuestre las siguientes afirmaciones (Pista: use inducción en $n$ y el hecho de que si $F'$ es de signo constante en un intervalo $(a,b)$ entonces $F$ es monótona en ese intervalo.):
+\begin{itemize}
+    \item Para cada $\sigma$, $R(\sigma)$ es, o bien vacío, o bien un punto o bien un intervalo real abierto $(a,b)$ (tal vez no acotado).
+    \item Una condición necesaria para que $R(\sigma)$ sea un punto es que $\sigma$ tenga algún signo cero.
+    \item Demuestre que si $c$ es una raíz de $F$, $c$ queda completamente determinado por los signos de las derivadas de $F$ en $c$,
+    \[\sig(F'(c)),\ldots,\sig(F^{(n)}(c))\]
+\end{itemize}
+\end{ejer}
+\begin{sol}\leavevmode
+\begin{itemize}
+    \item Para cada $\sigma$, $R(\sigma)$ es, o bien vacío, o bien un punto o bien un intervalo real abierto $(a,b)$ (tal vez no acotado).
+    
+    Si $n=0$, entonces $F\in\RR$. Tenemos que $R(\sigma)=\emptyset$ si $\sigma\neq\sig(F)$ y $R(\sigma)=\RR$ si $\sigma=\sig(F)$. Suponemos que se cumple para grado $n-1$. Sea $F\in\RRx$ con $\deg(F)=n$ y una tupla de signos $\sigma\in\{-1,0,1\}^{n+1}$. Tenemos que
+    \[R(\sigma)=R_{F'}(\tilde{\sigma})\cap\{c\in\RR : \sig(F(c))=\sigma_{n+1}\}\]
+    donde $R_{F'}(\tilde{\sigma})=\{c\in\RR : \sig(F^{(i+1)}(c))=\sigma_i : 0\leq i\leq n-1\}$ y $\tilde{\sigma}=(\sigma_1,\ldots,\sigma_n)$. Como $\deg(F')=n-1$, aplicando la hipótesis de inducción, se da una de las siguientes igualdades.
+    \[R_{F'}(\tilde{\sigma})=\emptyset\qquad R_{F'}(\tilde{\sigma})=\{x_0\}\qquad R_{F'}(\tilde{\sigma})=(a,b)
+    \]
+    Si $R_{F'}(\tilde{\sigma})=\emptyset$, entonces claramente $R(\sigma)=\emptyset.$ Si $R_{F'}(\tilde{\sigma})=\{x_0\}$, entonces
+    \[R(\sigma)=\left\{\begin{array}{cc}
+        \{x_0\} & \text{si }x_0\in\{c\in\RR: \sig(F(c))=\sigma_{n+1}\}  \\
+        \emptyset & \text{ en otro caso} 
+    \end{array}\right.
+    \]
+    Si por el contrario $R_{F'}(\tilde{\sigma})=(a,b)$, el polinomio $F$ define una función polinomial monótona en el intervalo $(a,b)$. Distinguimos si es monótona creciente o decreciente, si se anula en un único $x_0\in(a,b)$ o no se anula y el signo $\sigma_{n+1}$. Por continuidad, tenemos las siguientes situaciones.
+    
+    \[\begin{array}{|c|c|c|c|}
+        \hline R(\sigma)& \multicolumn{3}{c|}{\text{$F$ es monótona creciente}}\\
+        \hline \sigma_{n+1}=1 & \emptyset & (x_0,b) & (a,b) \\
+        \hline \sigma_{n+1}=0 & \emptyset & \{x_0\} & \emptyset \\
+        \hline \sigma_{n+1}=-1 & (a,b) & (a,x_0) & \emptyset \\ \hline
+    \end{array}
+    \begin{array}{|c|c|c|}
+        \hline \multicolumn{3}{|c|}{\text{$F$ es monótona decreciente}}\\
+        \hline (a,b) & (a,x_0) & \emptyset \\
+        \hline \emptyset & \{x_0\} & \emptyset \\
+        \hline \emptyset & (x_0,b) & (a,b) \\ \hline
+    \end{array}
+    \]
+    Por lo tanto, $R(\sigma)$ es vacío, unipuntual o un intervalo abierto no necesariamente acotado.
+    %Como $F'\in\RRx$ con $\deg(F')=n-1$, podemos aplicar la hipótesis de inducción. Para todo $\sigma\in\{-1,0,1\}^n$, $R_{F'}(\sigma)=\emptyset$ o $R_{F'}(\sigma)=\{c\}$ o $R_{F'}(\sigma)=(a,b)$. Tenemos que $R_F(\tilde{\sigma})=R_{F'}(\sigma)\cap\{c\in\RR : \sig(F(c))=\sigma_{n+1}\}$ donde $\tilde{\sigma}=(\sigma,\sigma_{n+1})$.
+    \item Una condición necesaria para que $R(\sigma)$ sea un punto es que $\sigma$ tenga algún signo cero.
+    
+    Si $n=0$, entonces $F\in\RR$. Si $\sigma\in\{-1,1\}$, entonces $R(\sigma)=\emptyset$ o $R(\sigma)=\RR$ porque es constante con lo que $\sig(F(c))=\sig(F)=\sigma$ o $\sig(F(c))=\sig(F)=-\sigma$. Suponemos que se cumple para grado $n-1$, es decir, que si $F\in\RRx$ con $\deg(F)=n-1$ y $\sigma\in\{-1,1\}^{n}$, entonces $R(\sigma)$ no es conjunto unipuntual. Sea $F\in\RRx$ con $\deg(F)=n$ y $\sigma\in\{-1,1\}^{n+1}$. Como antes, tenemos que
+    \[R(\sigma)=R_{F'}(\tilde{\sigma})\cap\{c\in\RR : \sig(F(c))=\sigma_{n+1}\}\]
+    donde $R_{F'}(\tilde{\sigma})=\{c\in\RR : \sig(F^{(i+1)}(c))=\sigma_i : 0\leq i\leq n-1\}$ y $\tilde{\sigma}=(\sigma_1,\ldots,\sigma_n)$. Como $\deg(F')=n-1$, aplicando la hipótesis de inducción $R_{F'}(\tilde{\sigma})$ no es unipuntual. Se cumple una de las siguientes igualdades.
+    \[R_{F'}(\tilde{\sigma})=\emptyset\qquad R_{F'}(\tilde{\sigma})=(a,b)\]
+    Pero, si $\sigma_{n+1}\in\{-1,1\}$, entonces, por el apartado anterior $R(\sigma)$ no es unipuntual como queríamos probar. Si $R_{F'}(\tilde{\sigma}=\emptyset)$, entonces $R(\sigma)=\emptyset$ y si $R(\tilde{\sigma})=(a,b)$, entonces se da una de las siguientes igualdades con $x_0\in\RR$.
+    \[R(\sigma)=(a,x_0)\qquad R(\sigma)=(a,b)\qquad R(\sigma)=(x_0,b).\]
+    \item Demuestre que si $c$ es una raíz de $F$, $c$ queda completamente determinado por los signos de las derivadas de $F$ en $c$,
+    \[\sig(F'(c)),\ldots,\sig(F^{(n)}(c)).\]
+    
+    Si $n=0$, entonces $F\in\RR$ y $F^{(0)}=F$. Si $F=0$, entonces $F(0)=0=F(1)$, pero $0\neq 1$. Lo probamos para $n=1$. Es trivial porque un polinomio de grado $1$ tiene una única raíz. Suponemos que se cumple para grado $n-1$, es decir, que si existen $c_1,c_2\in\RR$ raíces de $F$ con $\deg(F)=n-1$ y $\sig(F^{(i)}(c_1))=\sig(F^{(i)}(c_2))$ para todo $1\leq i\leq n-1$, entonces $c_1=c_2$. Lo probamos para grado $n$. Sea $F\in\RRx$ con $\deg(F)=n$ y $c_1,c_2\in\RR$ raíces de $F$ tales que $\sig(F^{(i)}(c_1))=\sig(F^{(i)}(c_2))$ para todo $1\leq i\leq n$. Tomamos $\sigma_i=\sig(F^{i}(c_1))$. Como antes, tenemos que
+    \[R(\sigma)=R_{F'}(\tilde{\sigma})\cap\{c\in\RR : \sig(F(c))=0\}\]
+    donde $R_{F'}(\tilde{\sigma})=\{c\in\RR : \sig(F^{(i+1)}(c))=\sigma_i : 0\leq i\leq n-1\}$ y $\tilde{\sigma}=(\sigma_1,\ldots,\sigma_n)$. Claramente por hipótesis, $c_1,c_2\in R(\sigma)$ porque las derivadas en $c_1$ y en $c_2$ tienen los mismos signos y además son raíces de $F$. En particular $R(\sigma)\neq \emptyset$. Pero como $F\in\RRx$ es de grado $n$, no puede tener más de $n$ raíces y, en particular, $R(\sigma)$ no es un intervalo. Por lo tanto, $R(\sigma)$ es un conjunto unipuntual y necesariamente $c_1=c_2$ como queríamos probar.
+\end{itemize}
+\end{sol}
+
+\begin{ejer} Con la misma notación que el ejercicio anterior. Sean $x,y\in\RR$. Sea $\sigma$ la sucesión de signos que toman $F$ y sus derivadas en $x$ y $\tau$ la correspondiente sucesión de signos en $y$. Supongamos que $\sigma\neq\tau$. Sea $k$ el mayor índice $0\leq k<n$ tal que $F^{(k)}(x)\neq F^{(k)}(y)$. Entonces
+\begin{itemize}
+    \item $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))\neq 0$
+    \item Si $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=1$,
+    \[x>y\leftrightarrow F^{(k)}(x)>F^{(k)}(y)\]
+    \item Si $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=-1$,
+    \[x>y\leftrightarrow F^{(k)}(x)<F^{(k)}(y)\]
+\end{itemize}
+\end{ejer}
+\begin{sol}\leavevmode
+
+\begin{itemize}
+    \item $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))\neq 0$
+    
+    Como $k$ es el mayor tal que $F^{(k)}(x)\neq F^{(k)}(y)$, tenemos que $F^{(i)}(x)=F^{(i)}(y)$, y en particular que $\sig(F^{(i)}(x))=\sig(F^{(i)}(y))$, para todo $k+1\leq i\leq n$. Razonamos por reducción al absurdo, si $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=0$, entonces aplicando el ejercicio anterior, como $x$ e $y$ son raíces de $F^{(k+1)}$ y coinciden los signos de las derivadas en $x$ e $y$, deben ser iguales $x=y$, lo que contradice el hecho de que $F^{(k)}(x)\neq F^{(k)}(y)$.
+    \item Si $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=1$,
+    \[x>y\leftrightarrow F^{(k)}(x)>F^{(k)}(y)\]
+    
+    Tomamos $\sigma_i=\sig(F^{(i)}(x))$ para cada $k+1\leq i\leq n$. Tenemos que $x,y\in R_{F^{(k+1)}}(\sigma)$. Como $x\neq y$, el conjunto $R_{F^{(k+1)}}(\sigma)$ es no vacío con dos elementos distintos y, por lo tanto, es un intervalo abierto no necesariamente acotado que contiene al intervalo abierto $I$ determinado por $x$ e $y$. Como $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=1$, la función polinomial dada por $F^{(k)}$ es monótona creciente en $I$ y, por definición, usando que $F^{(k)}(x)\neq F^{(k)}(y)$,
+    
+    \[x>y \leftrightarrow F^{(k)}(x)>F^{(k)}(y).\]
+
+    \item Si $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=-1$,
+    \[x>y\leftrightarrow F^{(k)}(x)<F^{(k)}(y)\]
+    
+    Tomamos $\sigma_i=\sig(F^{(i)}(x))$ para cada $k+1\leq i\leq n$. Tenemos que $x,y\in R_{F^{(k+1)}}(\sigma)$. Como $x\neq y$, el conjunto $R_{F^{(k+1)}}(\sigma)$ es no vacío con dos elementos distintos y, por lo tanto, es un intervalo abierto no necesariamente acotado que contiene al intervalo abierto $I$ determinado por $x$ e $y$. Como $\sig(F^{(k+1)}(x))=\sig(F^{(k+1)}(y))=-1$, la función polinomial dada por $F^{(k)}$ es monótona decreciente en $I$ y, por definición, usando que $F^{(k)}(x)\neq F^{(k)}(y)$,
+    
+    \[x>y \leftrightarrow F^{(k)}(x)>F^{(k)}(y).\]
+    
+    
+\end{itemize}
+\end{sol}
+
+
+El siguiente algoritmo calcula $V(L,-\infty,\infty)$, para $L$ la sucesión de restos con signo cambiado a partir de $P$ y $Q$.
+\lstinputlisting[language=Sage]{sturmcount.txt}
+
+\begin{ejer} Sean $F=x^3-3x^2+3$, $G=10x^2-15x+1$. Calcule la codificación $\textit{à la Thom}$ de la única raíz $\alpha$ de $F$ que cumple $Q(\alpha)<0$. Solo puede usar el algoritmo sturmcount anterior en dos polinomios para extraer información.
+\end{ejer}
+\begin{sol} Con la notación del Corolario 2.5, podemos calcular el número $V(P,Q)$ variaciones de signo la sucesión $L$ de restos con signo cambiado a partir de $P$ y $P'Q$ aplicando el algoritmo anterior como $\stc(P,P'Q)=V(P,Q)$. Por lo tanto, podemos calcular,
+\begin{align*}
+n_+ = & |\{c\in\RR : P(c)=0, Q(c)>0\}|=\frac{V(P,Q^2)+V(P,Q)}{2} \\
+n_- = & |\{c\in\RR: P(c)=0, Q(c)<0\}|=\frac{V(P,Q^2)-V(P,Q)}{2}\\
+n_0  = & |\{c\in\RR : P(c)=0, Q(c)=0\}|=V(P,1)-V(P,Q^2)
+\end{align*}
+y el número de raíces disintas de $P$ que es $n_0+n_++n_- = |\{c\in\RR: P(c)=0\}|=V(P,1)$.
+
+Queremos calcular los signos $\sig(F'(\alpha)), \sig(F''(\alpha)), \sig(F'''(\alpha))$ donde $\alpha$ es la única raíz de $F$ tal que $G(\alpha)<0$.
+El número de raíces distintas de $F$ es $|\{c\in\RR: F(c) = 0\}|=V(F,1) = 3$. Como $|\{c\in \RR: F(c)=0, G(c)<0\}|=1$, efectivamente $F$ tiene una única raíz $\alpha$ tal que $G(\alpha)<1$.
+
+Tenemos que $|\{c\in\RR : F(c)=0, F'(c)G(c)<0\}|=0$. Lo podemos expresar como
+\[|\{c\in\RR: F(c)=0, F'(c)<0, G(c)>0\}|+|\{c\in\RR: F(c)=0, F'(c)>0, G(c)<0\}|.\]
+Ambos sumandos deben ser $0$ para que la suma lo sea.
+
+Además, $|\{c\in\RR: F(c)=0, F'(c)G(c)>0\}|=2$, que coincide con la suma
+\[|\{c\in\RR : F(c)=0, F'(c)>0, G(c)>0\}|+|\{c\in\RR : F(c)=0, F(c)<0, G(c)<0\}|.\]
+La suma podría ser $1+1$, $2+0$ o $0+2$, pero los dos últimos casos no se pueden dar porque teniendo en cuenta que $F$ tiene una única raíz $\alpha$ tal que $G(\alpha)<0$,
+\begin{multline*}
+|c\in\RR : F(c)=0, G(c)<0| = |\{c\in\RR: F(c)=0, F'(c)<0, G(c)<0\}|+\\+|\{c\in\RR: F(c)=0, F'(c)>0, G(c)<0\}| = 1
+\end{multline*}
+donde tenemos de antes que el primer sumando es nulo, con lo que el segundo debe ser $1$. Por lo tanto, el primer signo de la codificación es $\sig(F'(c))=-1$.
+
+Tenemos que $|\{c\in\RR: F(c)=0, F''(c)G(c)<0\}|=2$. Lo podemos expresar como
+\[|\{c\in\RR: F(c)=0, F''(c)<0, G(c)>0\}|+|\{c\in\RR: F''(c)>0, G(c)<0\}|.\]
+Además, $|\{c\in\RR: F(c)=0, F''(c)G(c)>0\}|=1$, que coincide con la suma
+\[|\{c\in\RR: F(c)=0, F''(c)>0, G(c)<0\}|+|\{c\in\RR: F(c)=0, F''(c)<0, G(c)<0\}|.\]
+La primera suma podría ser $1+1$, $2+0$ o $0+2$ y la segunda podría ser $1+0$ o $0+1$. Teniendo en cuenta la únicidad de $\alpha$, tenemos en conjunto dos casos posibles $1+1$ y $1+0$ o $2+0$ y $0+1$. No es suficiente con estas descomposiciones para averiguar el valor de los sumandos. Calculamos también $|\{c\in\RR : F(c)=0, F''(c)<0\}|=1$ que es 
+\[|\{c\in\RR : F(c)=0, F''(c)<0, G(c)>0\}|+|\{c\in\RR: F(c)=0, F''(c)<0, G(c)<0\}|,\]
+con lo que la suma del primer sumando de la primera descomposición y el segundo de las segunda es $1$ y la única posibilidad es que sean $1+1$ y $1+0$. En particular, el segundo signo de la codificación es $\sig(F''(\alpha))=1$.
+
+Tenemos que $|\{c\in\RR: F(c)=0, F'''(c)G(c)<0\}|=1$. Lo podemos expresar como
+\[|\{c\in\RR: F(c)=0, F'''(c)<0, G(c)>0\}|+|\{c\in\RR: F(c)=0, F'''(c)>0, G(c)<0\}|.\]
+Además, $|\{c\in\RR: F(c)=0, F'''(c)G(c)>0\}|=2$, que coincide con la suma
+\[|\{c\in\RR: F(c)=0, F'''(c)>0, G(c)>0\}|+|\{c\in\RR: F(c)=0, F'''(c)<0, G(c)<0\}|.\]
+La primera suma podría ser $1+0$ o $0+1$ y la segunda podría ser $1+1$, $2+0$ y $0+2$. Teniendo en cuenta la únicidad de $\alpha$, tenemos en conjunto dos casos posibles $0+1$ y $2+0$ o $1+0$ y $1+1$. No es suficiente con estas descomposiciones para averiguar el valor de los sumandos. Calculamos también $|\{c\in\RR : F(c)=0, F'''(c)<0\}|=0$ que es 
+\[|\{c\in\RR : F(c)=0, F'''(c)<0, G(c)>0\}|+|\{c\in\RR: F(c)=0, F'''(c)<0, G(c)<0\}|,\]
+con lo que la suma del primer sumando de la primera descomposición y el segundo de las segunda es $0$ y la única posibilidad es que sean $2+0$ y $0+1$. En particular, el segundo signo de la codificación es $\sig(F''(\alpha))=1$.
+
+La codificación \textit{à la Thom} de $\alpha$ es $(-,+,+)$.
+
+\end{sol}
+\begin{ejer} Sea $f=x^5-2x^4-3x^3+6x^2-4x+8$. Sin calcular explícitamente las raíces y sin calcular factorizaciones:
+\begin{itemize}
+    \item Calcule cuántas raíces reales distintas tiene $f$.
+    \item Calcule la multiplicidad de cada raíz.
+    \item Dadas $x,y$ raíces de $f$ determinadas por su multiplicidad, determine cuál es mayor.
+\end{itemize}
+\end{ejer}
+\begin{sol}\leavevmode
+
+\begin{itemize}
+    \item Calcule cuántas raíces reales distintas tiene $f$.
+    
+    Directamente aplicando el algoritmo anterior
+    \[n_0+n_++n_- = |\{c\in\RR : f(c)=0\}| = V(f,1)=\stc(f,f')=2,\]
+    con lo que $f$ tiene dos raíces reales distintas.
+    
+    \item Calcule la multiplicidad de cada raíz.
+    
+    Para calcular la multiplicidad, aplicamos el Corolario 2.3 a $f$ con sus derivadas. Como 
+    \begin{multline*}
+        |\{c\in\RR: f(c)=0, f'(c)=0\}|=V(f,1)-V(f,{f'}^2)=\\=\stc(f,f')-\stc(f,f'{f'}^2)=1,
+    \end{multline*}
+    tiene una raíz simple y la otra al menos con multiplicdad $2$. Probamos con la segunda derivada y tenemos
+    \begin{multline*}
+        |\{c\in\RR: f(c)=0, f''(c)=0\}|=V(f,1)-V(f,{f''}^2)=\\=\stc(f,f')-\stc(f,f'{f''}^2)=0,    \end{multline*}
+    con lo que tiene una raíz simple y la otra doble.
+    
+    \item Dadas $x,y$ raíces de $f$ determinadas por su multiplicidad, determine cuál es mayor.
+    
+    Denotamos por $x$ a la raíz simple y por $y$ a la raíz doble. Buscamos la derivada de orden $0\leq k< 5$ mayor tal que $f^{(k)}(x)\neq f^{(k)}(y)$. Empezamos con $k=4$. Se cumple que,
+    \begin{align*}
+        |\{c\in\RR: f(c)=0, f^{(4)}(c)<0\}| & =1\\
+        |\{c\in\RR: f(c)=0, f^{(4)}(c)>0\}| & =1
+    \end{align*}
+    y debe ser $f^{(4)}(x)\neq f^{(4)}(y)$. Podemos calcular el signo en la derivada $f^{(5)}$ en $x$ e $y$ como
+    \[|\{c\in\RR: f(c)=0, f^{(5)}(c)>0\}|=2,\]
+    con lo que $\sig(f^{(5)}(x))=\sig(f^{(5)}(y))=1$ y aplicando el Ejercicio 11, se cumple \[x<y \leftrightarrow f^{(4)}(x)<f^{(4)}(y).\]
+    
+    Tenemos que $|\{c\in\RR: f(c)=0, f'(c)f^{(4)}<0\}|=1$. Lo podemos escribir como
+    \[|\{c\in\RR: f(c)=0,f'(c)<0,f^{(4)}>0\}|+|\{c\in\RR: f(c)=0,f'(c)>0,f^{(4)}(c)<0\}|.\]
+    Ademas, $|\{c\in\RR: f(c)=0,f'(c)f^{(4)}(c)>0\}|=0$, que coincide con la suma \[|\{c\in\RR: f(c)=0,f'(c)>0,f^{(4)}>0\}|+|\{c\in\RR:f(c)=0,f'(c)<0,f^{(4)}(c)<0\}|.\]
+    Los dos últimos sumandos deben ser $0$, pero como $f$ tiene una raíz simple y otra doble, tenemos $|\{c\in\RR: f(c)=0,f'(c)>0,f^{(4)}(c)<0\}|=1$, lo que implica que $f^{(4)}(x)<0$.
+    
+    Tenemos que $|\{c\in\RR: f(c)=0,f^{(4)}(c)>0\}|=1$ y se cumple
+    \begin{multline*}
+        |\{c\in\RR: f(c)=0,f'(c)=0,f^{(4)}(c)>0\}| = |\{c\in\RR: f(c)=0,f^{(4)}(c)>0\}|-\\-|\{c\in\RR: f(c)=0,f'(c)<0,f^{(4)}(c)>0\}|-|\{c\in\RR:f(c)=0,f'(c)>0,f^{(4)}(c)>0\}|=1.
+    \end{multline*}
+    Por lo tanto, $f^{(4)}(x)<0<f^{(4)}(y)$ y la raíz simple es menor que la doble.
+    
+\end{itemize}
+\end{sol}
+\end{document}

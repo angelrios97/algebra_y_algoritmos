@@ -1,0 +1,16 @@
+def sturmcount(P, Q):
+    if P == 0 or Q == 0:
+        raise(ValueError)
+    L = [P, Q]
+    while L[-1] != 0:
+        L.append(-L[-2] % L[-1])
+    L = L[:-1]
+    count = 0
+    for i in range(len(L) - 1):
+        n = L[i].degree()
+        m = L[i+1].degree()
+        if (n-m) % 2 == 1:
+            an = L[i][n]
+            bm = L[i+1][m]
+            count = count + sign(an * bm)
+    return count

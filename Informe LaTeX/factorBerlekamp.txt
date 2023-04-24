@@ -1,0 +1,41 @@
+from random import sample
+
+def factorBerlekamp(f):  # Calcula un factor de f mónico libre de cuadrados
+    # sobre un cuerpo finito mediante el algoritmo de Berlekamp.
+    if gcd(f,f.derivative()) != 1 or f[f.degree()] != 1:
+        print("El polinomio no es libre de cuadrados o no es mónico.")
+        return
+    BR = f.base_ring()  # Cuerpo finito de los coeficientes de f.
+    p = BR.characteristic()
+    m = BR.degree()
+    q = p ** m
+    n = f.degree()
+    Rx.<x> = PolynomialRing(BR)
+    Phi = []  # Guardará la matriz de a |--> a^q-a.
+    for _ in range(n):
+        pol = power_mod(x, _ * q, f)  # Cálculo eficiente de x^(iq) mod f
+        coef = []  # Guardará los coeficientes.
+        if type(pol) == int:
+            coef = [pol] + [0] * (n - 1)  # Añadimos ceros hasta n.
+        else:
+            coef = list(pol)
+            lenc = len(coef)
+            coef = coef + [0] * (n - lenc)  # Añadimos ceros hasta n.
+        Phi.append(coef)
+    Phi = matrix(BR, Phi) - matrix.identity(BR, n)
+    Ker = Phi.transpose().right_kernel()  # Ker(Phi): Álgebra de Berlekamp.
+    BaseKer = Ker.basis_matrix()  # Base de Ker(Phi).
+    r = BaseKer.dimensions()[0]  # Número de factores de  f.
+    BKer = [Rx(list(_)) for _ in BaseKer]
+    if r == 1:  # Si r = 1, es irreducible.
+        return f, 1, 1
+    while True:  # Repetimos hasta obtener un factor de f.
+        a = sample(list(Ker), 1)[0]  # Tomamos a del núcleo pseudoaleatorio.
+        a = Rx(list(a))  # Interpretamos a como polinomio.
+        b = power_mod(a, (q - 1) // 2, f)  # a ^ ((q - 1) / 2)
+        d = gcd(f, b)
+        if d != 1 and d != f:
+            return d, f // d, r  # Obtenemos un factor de f.
+        d = gcd(f, b - 1)
+        if d != 1 and d != f:
+            return d, f // d, r  # Obtenemos un factor de f.

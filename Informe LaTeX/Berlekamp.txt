@@ -1,0 +1,22 @@
+def Berlekamp(f):  # Factorización de f libre de cuadrados sobre 
+    # un cuerpo finito con el algoritmo de Berlekamp.
+    fact = []  # Guardará los factores de f.
+    c = f[f.degree()]
+    if c != 1:  # Si f no es mónico, el coeficiente principal es un factor.
+        fact = [c]
+    g = f // c
+    while g.degree() != 0:  # Mientras g no sea constante.
+        [d, g, r] = factorBerlekamp(g)  # Aplicamos el algoritmo anterior.
+        if r == 1:
+            return f
+        [d1, g1, r1] = factorBerlekamp(d)  # Buscamos un factor de d.
+        [d2, g2, r2] = factorBerlekamp(g)  # Buscamos un factor de g.
+        if r1 == 1 and r2 != 1:  # d es irreducible.
+            fact.append(d)
+        elif r1 != 1 and r2 == 1:  # g es irreducible.
+            fact.append(g) 
+            g = d
+        else:  # d y g son irreducibles.
+            fact.append(g)
+            fact.append(d)
+            return fact
